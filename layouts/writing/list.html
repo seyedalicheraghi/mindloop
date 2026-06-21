@@ -4,8 +4,11 @@
 <ul class="writing-list">
   {{ range .Site.Data.writing }}
   <li class="writing-item">
-    <a href="{{ .url }}">{{ .title }}</a>
-    <span class="writing-item__meta">{{ .venue }} · {{ .date }}</span>
+    <div>
+      <a href="{{ .url }}">{{ .title }}</a>
+      {{ with .authors }}<p class="writing-item__authors">{{ . }}</p>{{ end }}
+    </div>
+    <span class="writing-item__meta">{{ .venue }} · {{ .date }}{{ with .citations }} · {{ . }} citations{{ end }}</span>
   </li>
   {{ end }}
 </ul>

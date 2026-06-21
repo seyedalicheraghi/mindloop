@@ -1,8 +1,69 @@
-- title: "PLACEHOLDER: Medium article title"
-  url: "https://medium.com/@PLACEHOLDER/placeholder-article"
-  venue: "Medium"
-  date: "2026-01-01"
-- title: "PLACEHOLDER: Paper / preprint title"
-  url: "https://arxiv.org/abs/PLACEHOLDER"
-  venue: "arXiv"
-  date: "2026-01-01"
+# Real publications, pulled from Google Scholar
+# (https://scholar.google.com/citations?user=0ibpiooAAAAJ&hl=en) on 2026-06-21.
+# Linked via Scholar search-by-title (stable even without a direct DOI/publisher URL).
+- title: "GuideBeacon: Beacon-based indoor wayfinding for the blind, visually impaired, and disoriented"
+  authors: "S.A. Cheraghi, V. Namboodiri, L. Walker"
+  venue: "IEEE PerCom"
+  date: "2017"
+  citations: 204
+  url: "https://scholar.google.com/scholar?q=%22GuideBeacon%3A+Beacon-based+indoor+wayfinding+for+the+blind%2C+visually+impaired%2C+and+disoriented%22"
+- title: "Moving object detection using image registration for a moving camera platform"
+  authors: "S.A. Cheraghi, U.U. Sheikh"
+  venue: "IEEE ICCSCE"
+  date: "2012"
+  citations: 44
+  url: "https://scholar.google.com/scholar?q=%22Moving+object+detection+using+image+registration+for+a+moving+camera+platform%22"
+- title: "An Indoor Navigation App using Computer Vision and Sign Recognition"
+  authors: "G. Fusco, A. Cheraghi, J.M. Coughlan"
+  venue: "ICCHP"
+  date: "2020"
+  citations: 27
+  url: "https://scholar.google.com/scholar?q=%22An+Indoor+Navigation+App+using+Computer+Vision+and+Sign+Recognition%22"
+- title: "CityGuide: A Seamless Indoor-Outdoor Wayfinding System for People With Vision Impairments"
+  authors: "S.A. Cheraghi, A. Almadan, V. Namboodiri"
+  venue: "ACM SIGACCESS (ASSETS)"
+  date: "2019"
+  citations: 27
+  url: "https://scholar.google.com/scholar?q=%22CityGuide%3A+A+Seamless+Indoor-Outdoor+Wayfinding+System+for+People+With+Vision+Impairments%22"
+- title: "Upper body tracking using KLT and Kalman filter"
+  authors: "P. Bagherpour, S.A. Cheraghi, M. Bin Mohd Mokji"
+  venue: "Procedia Computer Science"
+  date: "2012"
+  citations: 27
+  url: "https://scholar.google.com/scholar?q=%22Upper+body+tracking+using+KLT+and+Kalman+filter%22"
+- title: "SafeExit4All: An Inclusive Indoor Emergency Evacuation System for People With Disabilities"
+  authors: "S.A. Cheraghi, A. Sharma, V. Namboodiri, A. Guler"
+  venue: "Web for All (W4A)"
+  date: "2019"
+  citations: 22
+  url: "https://scholar.google.com/scholar?q=%22SafeExit4All%3A+An+Inclusive+Indoor+Emergency+Evacuation+System%22"
+- title: "A Lightweight Approach to Localization for Blind and Visually Impaired Travelers"
+  authors: "R. Crabb, S.A. Cheraghi, et al."
+  venue: "Sensors"
+  date: "2023"
+  citations: 19
+  url: "https://scholar.google.com/scholar?q=%22A+Lightweight+Approach+to+Localization+for+Blind+and+Visually+Impaired+Travelers%22"
+- title: "Beacon-based indoor wayfinding system with automated beacon placement"
+  authors: "V. Namboodiri, S.A. Cheraghi"
+  venue: "US Patent 10,655,970"
+  date: "2020"
+  citations: 17
+  url: "https://patents.google.com/patent/US10655970B2"
+- title: "IBeaconMap: Automated Indoor Space Representation for Beacon-Based Wayfinding"
+  authors: "S.A. Cheraghi, V. Namboodiri, K. Sinha"
+  venue: "ICCHP"
+  date: "2020"
+  citations: 13
+  url: "https://scholar.google.com/scholar?q=%22IBeaconMap%3A+Automated+Indoor+Space+Representation+for+Beacon-Based+Wayfinding%22"
+- title: "Real-time sign detection for accessible indoor navigation"
+  authors: "S.A. Cheraghi, G. Fusco, J.M. Coughlan"
+  venue: "Journal on Technology and Persons with Disabilities"
+  date: "2021"
+  citations: 9
+  url: "https://scholar.google.com/scholar?q=%22Real-time+sign+detection+for+accessible+indoor+navigation%22"
+- title: "GuideCall: Affordable and trustworthy video call-based remote assistance for people with visual impairments"
+  authors: "N.M. Ravindran, S.A. Cheraghi, V. Namboodiri, R. Babu"
+  venue: "Web for All (W4A)"
+  date: "2019"
+  citations: 3
+  url: "https://scholar.google.com/scholar?q=%22GuideCall%3A+Affordable+and+trustworthy+video+call-based+remote+assistance%22"

@@ -4,9 +4,11 @@
   --color-text: #14151a;
   --color-muted: #5a5e6b;
   --color-accent: #2563eb;
-  --color-accent-2: #7c3aed;
+  --color-accent-2: #9333ea;
+  --color-accent-3: #ec4899;
+  --color-accent-4: #f59e0b;
   --color-border: rgba(20, 21, 26, 0.08);
-  --color-pill-bg: rgba(37, 99, 235, 0.08);
+  --color-pill-bg: rgba(37, 99, 235, 0.1);
   --shadow-color: 220 60% 30%;
   --shadow-sm: 0 1px 2px hsl(var(--shadow-color) / 0.06), 0 1px 1px hsl(var(--shadow-color) / 0.04);
   --shadow-md: 0 8px 24px -8px hsl(var(--shadow-color) / 0.18), 0 2px 8px -2px hsl(var(--shadow-color) / 0.1);
@@ -25,9 +27,11 @@
     --color-text: #e8e8ec;
     --color-muted: #9a9eac;
     --color-accent: #60a5fa;
-    --color-accent-2: #a78bfa;
+    --color-accent-2: #c084fc;
+    --color-accent-3: #f472b6;
+    --color-accent-4: #fbbf24;
     --color-border: rgba(255, 255, 255, 0.08);
-    --color-pill-bg: rgba(96, 165, 250, 0.12);
+    --color-pill-bg: rgba(96, 165, 250, 0.14);
     --shadow-color: 230 80% 4%;
     --glass-bg: rgba(21, 22, 31, 0.6);
   }
@@ -55,6 +59,22 @@ a:hover {
   text-decoration: underline;
 }
 
+h2 {
+  position: relative;
+  padding-bottom: calc(var(--spacing-unit) * 1.5);
+}
+
+h2::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 56px;
+  height: 4px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-2), var(--color-accent-3));
+}
+
 .site-header {
   position: sticky;
   top: 0;
@@ -78,8 +98,7 @@ a:hover {
 
 .site-nav__brand {
   font-weight: 700;
-  color: var(--color-text);
-  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-2));
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-2), var(--color-accent-3));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -121,7 +140,7 @@ a:hover {
   font-size: 0.875rem;
 }
 
-/* ---- Hero: gradient text + floating depth blobs (pure CSS, no JS/images) ---- */
+/* ---- Hero: vivid gradient text + bigger, brighter floating depth blobs ---- */
 
 .hero {
   position: relative;
@@ -134,31 +153,31 @@ a:hover {
 .hero::after {
   content: "";
   position: absolute;
-  width: 320px;
-  height: 320px;
+  width: 420px;
+  height: 420px;
   border-radius: 50%;
-  filter: blur(70px);
-  opacity: 0.35;
+  filter: blur(80px);
+  opacity: 0.55;
   z-index: -1;
   animation: blob-float 12s ease-in-out infinite;
 }
 
 .hero::before {
-  background: var(--color-accent);
-  top: -120px;
-  left: -80px;
+  background: radial-gradient(circle at 30% 30%, var(--color-accent), var(--color-accent-2) 70%);
+  top: -160px;
+  left: -120px;
 }
 
 .hero::after {
-  background: var(--color-accent-2);
-  top: -60px;
-  right: -100px;
+  background: radial-gradient(circle at 70% 30%, var(--color-accent-3), var(--color-accent-4) 75%);
+  top: -100px;
+  right: -140px;
   animation-delay: -6s;
 }
 
 @keyframes blob-float {
   0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(24px, 30px) scale(1.08); }
+  50% { transform: translate(24px, 30px) scale(1.1); }
 }
 
 @keyframes hero-rise {
@@ -169,7 +188,7 @@ a:hover {
 .hero__name {
   font-size: clamp(2.25rem, 5vw, 3.25rem);
   margin: 0 0 calc(var(--spacing-unit)) 0;
-  background: linear-gradient(135deg, var(--color-text) 30%, var(--color-accent) 70%, var(--color-accent-2));
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-2) 45%, var(--color-accent-3) 75%, var(--color-accent-4) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -178,7 +197,8 @@ a:hover {
 
 .hero__title {
   font-size: 1.25rem;
-  color: var(--color-muted);
+  font-weight: 600;
+  color: var(--color-text);
   margin: 0 0 calc(var(--spacing-unit) * 1.5) 0;
 }
 
@@ -187,7 +207,7 @@ a:hover {
   color: var(--color-muted);
 }
 
-/* ---- Cards: glassmorphism + CSS-only 3D tilt-and-lift on hover ---- */
+/* ---- Cards: glassmorphism + colorful top accent + CSS-only 3D tilt-and-lift ---- */
 
 .project-grid,
 .skills-grid {
@@ -200,6 +220,7 @@ a:hover {
 
 .project-card,
 .skill-group {
+  position: relative;
   background: var(--glass-bg);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -207,8 +228,40 @@ a:hover {
   border-radius: var(--radius);
   padding: calc(var(--spacing-unit) * 2.5);
   box-shadow: var(--shadow-sm);
+  overflow: hidden;
   transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s ease, border-color 0.35s ease;
   will-change: transform;
+}
+
+.project-card::before,
+.skill-group::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-2));
+}
+
+.project-grid > .project-card:nth-child(2)::before,
+.skills-grid > .skill-group:nth-child(2)::before {
+  background: linear-gradient(90deg, var(--color-accent-2), var(--color-accent-3));
+}
+
+.project-grid > .project-card:nth-child(3)::before,
+.skills-grid > .skill-group:nth-child(3)::before {
+  background: linear-gradient(90deg, var(--color-accent-3), var(--color-accent-4));
+}
+
+.project-grid > .project-card:nth-child(4)::before,
+.skills-grid > .skill-group:nth-child(4)::before {
+  background: linear-gradient(90deg, var(--color-accent-4), var(--color-accent));
+}
+
+.project-grid > .project-card:nth-child(5)::before,
+.skills-grid > .skill-group:nth-child(5)::before {
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-3));
 }
 
 .project-card:hover,
@@ -242,11 +295,16 @@ a:hover {
   border-radius: 999px;
   padding: 4px 14px;
   font-size: 0.8rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
+.pill:nth-child(3n+1) { color: var(--color-accent); border-color: color-mix(in srgb, var(--color-accent) 35%, transparent); }
+.pill:nth-child(3n+2) { color: var(--color-accent-2); border-color: color-mix(in srgb, var(--color-accent-2) 35%, transparent); }
+.pill:nth-child(3n+3) { color: var(--color-accent-3); border-color: color-mix(in srgb, var(--color-accent-3) 35%, transparent); }
+
 .pill:hover {
-  transform: translateY(-2px);
+  transform: translateY(-2px) scale(1.05);
   box-shadow: var(--shadow-sm);
 }
 
@@ -287,17 +345,18 @@ a.pill {
 .timeline-item::before {
   content: "";
   position: absolute;
-  left: -5px;
+  left: -7px;
   top: 6px;
-  width: 8px;
-  height: 8px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-2));
-  box-shadow: 0 0 0 4px var(--color-bg);
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-3));
+  box-shadow: 0 0 0 4px var(--color-bg), 0 0 16px color-mix(in srgb, var(--color-accent) 60%, transparent);
 }
 
 .timeline-item__dates {
-  color: var(--color-muted);
+  color: var(--color-accent-2);
+  font-weight: 700;
   font-size: 0.875rem;
   margin: 0;
 }
@@ -314,16 +373,25 @@ a.pill {
   gap: var(--spacing-unit);
   padding: calc(var(--spacing-unit) * 1.5) 0;
   border-bottom: 1px solid var(--color-border);
-  transition: padding-left 0.2s ease;
+  transition: padding-left 0.2s ease, border-color 0.2s ease;
 }
 
 .writing-item:hover {
   padding-left: var(--spacing-unit);
+  border-color: var(--color-accent);
+}
+
+.writing-item__authors {
+  color: var(--color-muted);
+  font-size: 0.8rem;
+  margin: 2px 0 0 0;
 }
 
 .writing-item__meta {
-  color: var(--color-muted);
+  color: var(--color-accent-2);
+  font-weight: 600;
   font-size: 0.875rem;
+  white-space: nowrap;
 }
 
 .contact-links {
@@ -337,12 +405,13 @@ a.pill {
 
 .button {
   display: inline-block;
-  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-2));
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-2), var(--color-accent-3));
   color: #fff;
   padding: calc(var(--spacing-unit) * 1.25) calc(var(--spacing-unit) * 2.5);
   border-radius: 999px;
   margin-top: calc(var(--spacing-unit) * 2);
   box-shadow: var(--shadow-md);
+  font-weight: 600;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
