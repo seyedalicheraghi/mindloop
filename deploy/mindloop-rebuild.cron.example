@@ -1,0 +1,3 @@
+# Example crontab line (NOT installed automatically) — runs every 5 minutes.
+# Install manually inside the VM with: crontab -e
+*/5 * * * * cd /opt/mindloop && /usr/bin/python3 -m deploy.rebuild.main >> /var/log/mindloop-rebuild.log 2>&1

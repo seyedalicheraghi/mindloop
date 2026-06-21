@@ -1,0 +1,10 @@
+- name: "Deep Learning"
+  items: ["PyTorch", "TensorFlow", "CNNs / Transformers", "Model optimization & quantization"]
+- name: "Computer Vision"
+  items: ["Object detection & tracking", "Segmentation", "3D vision / SLAM", "OpenCV"]
+- name: "LLMs / VLMs / VLAs"
+  items: ["Hugging Face Transformers", "RAG pipelines", "Fine-tuning & LoRA", "Vision-language-action models"]
+- name: "Robotics / ROS2"
+  items: ["ROS2 nodes & topics", "rosbag2", "Sensor fusion", "Isaac Sim / Gazebo"]
+- name: "MLOps & Tooling"
+  items: ["Docker", "MLflow / W&B", "ONNX / TensorRT", "CI/CD (GitHub Actions)"]

@@ -1,0 +1,7 @@
+Drop your real resume here as static/resume.pdf.
+
+Hugo copies everything under static/ verbatim to the site root at build time,
+so static/resume.pdf becomes downloadable at /resume.pdf — the URL the
+Experience page's "Download Resume" button links to.
+
+Delete this placeholder file once resume.pdf is in place.

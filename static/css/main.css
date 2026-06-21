@@ -1,0 +1,218 @@
+:root {
+  --color-bg: #ffffff;
+  --color-text: #1a1a1a;
+  --color-muted: #5a5a5a;
+  --color-accent: #2563eb;
+  --color-border: #e2e2e2;
+  --color-pill-bg: #f1f5f9;
+  --spacing-unit: 8px;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --max-width: 960px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #12131a;
+    --color-text: #e8e8e8;
+    --color-muted: #a0a0a0;
+    --color-accent: #60a5fa;
+    --color-border: #2a2a35;
+    --color-pill-bg: #1d1e29;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.site-header {
+  border-bottom: 1px solid var(--color-border);
+  padding: calc(var(--spacing-unit) * 2) calc(var(--spacing-unit) * 3);
+}
+
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--spacing-unit) * 2);
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+.site-nav__brand {
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.site-nav__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing-unit) * 2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.site-main {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: calc(var(--spacing-unit) * 4) calc(var(--spacing-unit) * 3);
+}
+
+.site-footer {
+  border-top: 1px solid var(--color-border);
+  text-align: center;
+  color: var(--color-muted);
+  padding: calc(var(--spacing-unit) * 3);
+  font-size: 0.875rem;
+}
+
+.hero {
+  padding: calc(var(--spacing-unit) * 4) 0;
+}
+
+.hero__name {
+  font-size: 2.5rem;
+  margin: 0 0 calc(var(--spacing-unit)) 0;
+}
+
+.hero__title {
+  font-size: 1.25rem;
+  color: var(--color-muted);
+  margin: 0 0 calc(var(--spacing-unit)) 0;
+}
+
+.hero__tagline {
+  max-width: 36rem;
+}
+
+.project-grid,
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: calc(var(--spacing-unit) * 3);
+  margin: calc(var(--spacing-unit) * 2) 0;
+}
+
+.project-card,
+.skill-group {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: calc(var(--spacing-unit) * 2);
+}
+
+.pill-list,
+.link-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-unit);
+  list-style: none;
+  margin: var(--spacing-unit) 0 0 0;
+  padding: 0;
+}
+
+.pill {
+  background: var(--color-pill-bg);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+}
+
+a.pill {
+  color: var(--color-text);
+}
+
+.video-embed {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+  margin: calc(var(--spacing-unit) * 2) 0;
+}
+
+.video-embed iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing-unit) * 3);
+}
+
+.timeline-item__dates {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.writing-list {
+  list-style: none;
+  padding: 0;
+}
+
+.writing-item {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--spacing-unit);
+  padding: calc(var(--spacing-unit) * 1.5) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.writing-item__meta {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+.contact-links {
+  list-style: none;
+  padding: 0;
+}
+
+.button {
+  display: inline-block;
+  background: var(--color-accent);
+  color: #fff;
+  padding: calc(var(--spacing-unit)) calc(var(--spacing-unit) * 2);
+  border-radius: 6px;
+  margin-top: calc(var(--spacing-unit) * 2);
+}
+
+.button:hover {
+  text-decoration: none;
+  opacity: 0.9;
+}
+
+@media (max-width: 640px) {
+  .site-nav {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .site-nav__links {
+    flex-direction: column;
+    gap: var(--spacing-unit);
+  }
+}

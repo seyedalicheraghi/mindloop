@@ -1,0 +1,3 @@
+# Currently stdlib-only (subprocess, pathlib, logging) — no third-party
+# dependencies needed for the rebuild automation. Kept as a placeholder
+# for when/if that changes.

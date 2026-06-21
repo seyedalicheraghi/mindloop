@@ -1,0 +1,10 @@
+[Unit]
+Description=Mindloop portfolio rebuild-on-change check
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/mindloop
+ExecStart=/usr/bin/python3 -m deploy.rebuild.main
+User=mindloop2026ali

@@ -1,0 +1,32 @@
+{{ define "main" }}
+<article class="project-detail">
+  <h1>{{ .Title }}</h1>
+
+  {{ with .Params.problem }}<p><strong>Problem:</strong> {{ . }}</p>{{ end }}
+  {{ with .Params.approach }}<p><strong>Approach:</strong> {{ . }}</p>{{ end }}
+  {{ with .Params.results }}<p><strong>Results:</strong> {{ . }}</p>{{ end }}
+
+  {{ with .Params.stack }}
+  <ul class="pill-list">
+    {{ range . }}<li class="pill">{{ . }}</li>{{ end }}
+  </ul>
+  {{ end }}
+
+  {{ with .Params.youtube_id }}
+  <div class="video-embed">
+    <iframe src="https://www.youtube.com/embed/{{ . }}" title="Project demo video" frameborder="0" allowfullscreen></iframe>
+  </div>
+  {{ end }}
+
+  {{ with .Params.links }}
+  <ul class="link-pills">
+    {{ with .github }}<li><a class="pill" href="{{ . }}">GitHub</a></li>{{ end }}
+    {{ with .demo }}<li><a class="pill" href="{{ . }}">Demo</a></li>{{ end }}
+    {{ with .paper }}<li><a class="pill" href="{{ . }}">Paper</a></li>{{ end }}
+    {{ with .medium }}<li><a class="pill" href="{{ . }}">Medium</a></li>{{ end }}
+  </ul>
+  {{ end }}
+
+  {{ .Content }}
+</article>
+{{ end }}

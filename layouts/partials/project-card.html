@@ -1,0 +1,9 @@
+<article class="project-card">
+  <h3 class="project-card__title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+  {{ with .Params.results }}<p class="project-card__results">{{ . }}</p>{{ end }}
+  {{ with .Params.stack }}
+  <ul class="pill-list">
+    {{ range . }}<li class="pill">{{ . }}</li>{{ end }}
+  </ul>
+  {{ end }}
+</article>

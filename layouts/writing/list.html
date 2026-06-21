@@ -1,0 +1,12 @@
+{{ define "main" }}
+<h1>{{ .Title }}</h1>
+{{ .Content }}
+<ul class="writing-list">
+  {{ range .Site.Data.writing }}
+  <li class="writing-item">
+    <a href="{{ .url }}">{{ .title }}</a>
+    <span class="writing-item__meta">{{ .venue }} · {{ .date }}</span>
+  </li>
+  {{ end }}
+</ul>
+{{ end }}

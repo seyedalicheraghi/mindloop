@@ -1,0 +1,36 @@
+baseURL = "/"
+languageCode = "en-us"
+title = "Ali Cheraghi — ML & Computer Vision Engineer"
+
+[params]
+  description = "Ali Cheraghi — Machine Learning & Computer Vision Engineer with 6+ years of experience, expanding into LLMs, VLMs, VLAs, and ROS2."
+
+[[menu.main]]
+  name = "About"
+  url = "/about/"
+  weight = 10
+
+[[menu.main]]
+  name = "Projects"
+  url = "/projects/"
+  weight = 20
+
+[[menu.main]]
+  name = "Skills"
+  url = "/skills/"
+  weight = 30
+
+[[menu.main]]
+  name = "Experience"
+  url = "/experience/"
+  weight = 40
+
+[[menu.main]]
+  name = "Writing"
+  url = "/writing/"
+  weight = 50
+
+[[menu.main]]
+  name = "Contact"
+  url = "/contact/"
+  weight = 60
