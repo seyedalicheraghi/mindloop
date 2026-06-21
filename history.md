@@ -420,3 +420,73 @@ write-ups for the 3 Projects entries (or swapping in real projects from
 his actual research — GuideBeacon/CityGuide/etc. are strong, verified
 candidates), a real resume PDF, and "add real photos" from the color
 question above (no images on the site at all currently).
+
+## 2026-06-21 — Consolidated to 2 pages, added a logo, fixed wide-screen layout bug
+
+Ali said the site "does not look professional" — specifically: his name
+sat in a narrow column in the middle of the screen with huge empty space
+on either side, he didn't want many separate pages, and he wanted a
+"mindloop" logo on the main page with everything personal moved onto the
+Contact page.
+
+- **Confirmed the layout bug first** before fixing anything: screenshotted
+  the homepage at 1920×1080. `--max-width: 960px` centered via `margin:
+  0 auto` was the entire content column — correct on a laptop screen, but
+  on a wide monitor it left large flat dead zones left and right with
+  nothing in them. This was a real, reproducible bug, not a misreading.
+- **Restructured navigation**: six pages (Home, About, Projects, Skills,
+  Experience, Writing, Contact) collapsed to two (Home, Contact). Deleted
+  `content/about/_index.md`, `content/skills/_index.md`,
+  `content/experience/_index.md`, `content/writing/_index.md`,
+  `content/projects/_index.md` (the standalone list page) — their
+  underlying data (`data/skills.yaml`, `data/experience.yaml`,
+  `data/writing.yaml`) and the individual project pages
+  (`content/projects/<slug>.md`) were untouched and still feed the new
+  consolidated Contact page. `hugo.toml`'s menu trimmed to a single
+  "Contact" entry.
+- **`/contact/` is now the real page**: bio, Skills grid, Projects grid
+  (pulled via `where .Site.RegularPages "Section" "projects"` rather than
+  depending on the now-deleted projects list page), Experience timeline +
+  resume button, Writing list, and the actual contact links — all in one
+  scrollable page with anchored sections (`#about`, `#skills`, etc.).
+  Removed the now-orphaned list templates
+  (`layouts/{skills,experience,writing,projects}/list.html`).
+- **Home (`/`) became a minimal landing page**: logo + hero + one button
+  ("View my work & get in touch →") linking to `/contact/`. No more
+  About-teaser/Featured-Projects sections there — those live on Contact
+  now.
+- **Built a logo**: a hand-coded inline SVG (`layouts/partials/logo.html`)
+  — an infinity-loop mark with a 4-stop gradient matching the site's
+  accent palette (blue→purple→pink→amber), with a dark-mode override via
+  an embedded `<style>` media query. Used in the header (next to the name)
+  and bigger on the landing page. Had to parametrize the gradient's `id`
+  (passed via `dict "id" "header"` / `dict "id" "landing"`) since the same
+  partial is rendered twice on the homepage — without that, both usages
+  would emit the same SVG element ID, which is invalid duplicate-ID HTML
+  and would make the second reference silently resolve to the first
+  gradient definition instead of its own.
+- **Fixed the wide-screen layout bug**: bumped `--max-width` from 960px to
+  1100px (modest, doesn't fully solve it alone), and — the actual fix —
+  added a full-viewport, fixed-position, multi-color radial-gradient wash
+  behind the whole page (`background-attachment: fixed`), so the area
+  outside the content column is never flat/empty on any screen size, wide
+  monitor or not.
+- **Caught and fixed a self-inflicted bug while testing this**: after
+  adding the full-bleed background, the hero's glow blobs (which have
+  `overflow: hidden` on their parent `.hero` to clip them) rendered as a
+  hard-edged dark rectangle behind the name — clipping that looked fine
+  against the old flat background now looked like a floating box against
+  the new colorful one. Fix: removed `overflow: hidden` from `.hero`
+  (safe — it's now only used once, on the landing page, not clipped
+  against other content) and added `overflow-x: hidden` to `body` instead,
+  so the now-unclipped blobs can blend seamlessly without causing a
+  horizontal scrollbar.
+- Verified at 1920px, 1280px, and 390px (mobile) widths, and the full
+  `/contact/` page end-to-end, via headless Chrome before pushing.
+  Confirmed live on `mindsloop.org` after redeploy: logo renders, nav is
+  just "Contact," `/about/` now correctly 404s (content moved, not
+  duplicated), and the wide-screen background fills the viewport.
+
+**Still open**: real bio, real Experience entries, real/expanded Projects,
+resume PDF, and photos — same gaps as the previous entry, now living on a
+single consolidated page instead of being spread across five.
