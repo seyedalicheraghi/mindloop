@@ -2,4 +2,5 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} · {{ .Site.Title }}{{ end }}</title>
 {{ partial "seo.html" . }}
-<link rel="stylesheet" href="{{ "css/main.css" | relURL }}">
+{{ $style := resources.Get "css/main.css" | fingerprint }}
+<link rel="stylesheet" href="{{ $style.RelPermalink }}" integrity="{{ $style.Data.Integrity }}">
