@@ -328,3 +328,46 @@ Patterns worth remembering for next time, not just what happened once:
 - Pushed to `main`; the VM's rebuild timer will pick it up and redeploy
   within ~5 minutes (no manual VM-side action needed for a content/static
   asset change).
+
+## 2026-06-21 — Found and fixed: Cloudflare was serving stale CSS
+
+Ali reported the redesign wasn't visible on `mindsloop.org` shortly after
+the previous entry's deploy. Diagnosis: `curl -sI
+https://mindsloop.org/css/main.css` showed `cf-cache-status: HIT`,
+`cache-control: max-age=14400` (4 hours), and a `last-modified` timestamp
+from *before* the redesign — Cloudflare's edge had cached the old
+`/css/main.css` and kept serving it, because the URL never changed between
+deploys (no cache-busting), so the CDN had no signal that the content
+underneath that exact path had changed. The site itself had redeployed
+correctly (confirmed via the rebuild timer's logs) — this was purely a
+caching problem, not a deployment failure.
+
+**Permanent fix, not just a one-off purge:** moved `static/css/main.css`
+to `assets/css/main.css` and switched `layouts/partials/head.html` to
+Hugo's asset pipeline (`resources.Get "css/main.css" | fingerprint`),
+which outputs a content-hashed filename (e.g.
+`main.fdd0e939....css`) and a Subresource Integrity hash. Because the
+filename itself changes whenever the CSS content changes, every future
+deploy automatically gets a brand-new URL — Cloudflare and browsers can
+cache it as aggressively and as long as they want, since a stale cache
+entry for the *old* filename is harmless (nothing references that URL
+anymore) and the *new* filename has never been cached, so it's always a
+fresh fetch. This needed no Cloudflare dashboard changes or API access —
+fixed entirely from the Hugo template/build side.
+- Verified the fix locally first (`hugo --minify --gc`, confirmed the
+  hashed filename in `public/index.html`, screenshotted via headless
+  Chrome to confirm styles still applied identically) before pushing.
+- Triggered the VM's rebuild manually (`sudo systemctl start
+  mindloop-rebuild.service`) rather than waiting for the timer, then
+  confirmed end-to-end: the new fingerprinted CSS URL returns
+  `cf-cache-status: MISS` (fresh, not a stale hit) and contains the new
+  design rules. Screenshotted the real public `https://mindsloop.org/`
+  directly to visually confirm.
+
+**Lesson for future static-asset changes:** any time a *static asset's
+content* changes but its *URL* doesn't, a CDN sitting in front of it (or
+even just a visitor's browser cache) can mask the change indefinitely,
+even though the deploy itself succeeded. Fingerprinted/hashed filenames
+are the standard fix — they make "did the deploy actually take effect"
+trivially checkable (new hash in the HTML = new content shipped) instead
+of needing to manually inspect cache headers.
