@@ -79,3 +79,52 @@ VM, no installs, no domain, no Cloudflare Tunnel, no git push. See
 reachable via SSH at a stable reserved IP. Next per `PLAN.md`: install
 Docker inside the VM (official apt repo, not snap), then proceed to
 domain registration / Cloudflare Tunnel setup.
+
+## 2026-06-21 — Docker, GitHub push, rebuild automation, VM hardening
+
+- Snapshotted `mindloop-vm` (`pristine-install`) before installing anything
+  — this was skipped in the prior entry, caught and fixed here.
+- Fixed `deploy/mindloop-rebuild.service`'s hardcoded `User=mindloop` ->
+  `User=mindloop2026ali` (actual VM username).
+- Excluded `.claude/` (agent tooling/internal memory) from version control
+  via `.gitignore` before the first commit — not portfolio content, no
+  reason to publish internal agent notes to a public repo.
+- `git init`, initial commit, and `gh repo create seyedalicheraghi/mindloop
+  --public --source=. --remote=origin --push` — project is now live at
+  https://github.com/seyedalicheraghi/mindloop
+- Added a scoped `/etc/sudoers.d/mindloop-setup` NOPASSWD drop-in for
+  `mindloop2026ali` (specific binaries only: `apt-get`, `apt`, `mkdir`,
+  `chown`, `cp`, `install`, `tee`, `curl`, `chmod`, `systemctl`, `ufw`,
+  `dpkg-reconfigure` — plus `/usr/bin/usermod`, which turned out to be the
+  wrong path on this system; the real binary is `/usr/sbin/usermod`, so
+  that one command was run manually with a password instead of fixing the
+  sudoers entry, since it was a single one-off use).
+- Installed Docker via the official apt repo (`download.docker.com` —
+  confirmed the brand-new `resolute` (26.04) suite is already published
+  there, no `noble` fallback needed). Added `mindloop2026ali` to the
+  `docker` group.
+- Created `/opt/mindloop` (sudo chown to `mindloop2026ali`), cloned the
+  repo there via HTTPS (no SSH key needed on the VM — repo is public,
+  read-only access is all the rebuild automation ever needs).
+- Built the image (`docker build -t mindloop-portfolio:latest .` — Hugo
+  build: 22 pages, clean) and ran it (`--read-only`, tmpfs `/data`+`/config`,
+  `-p 8080:8080`, `--restart unless-stopped`). Verified `curl -sI
+  localhost:8080` returns `200 OK` from Caddy with security headers.
+- Installed `mindloop-rebuild.service`/`.timer` into
+  `/etc/systemd/system/`, enabled the timer. First run logged "No remote
+  changes; skipping rebuild" — correct, since the container was already
+  current.
+- Hardened the VM: `ufw` enabled with default-deny incoming, outgoing
+  allowed, SSH allowed only from `192.168.122.1` (the host) — confirmed via
+  `ss -tln` that only `:8080` and `:22` are listening. Enabled
+  `unattended-upgrades`.
+- Took a second snapshot, `working-baseline`, capturing this fully-working
+  state (site serving internally, auto-redeploy active, firewall +
+  auto-updates on) — before any Cloudflare Tunnel work.
+
+**State at end of this entry:** site is fully functional and
+auto-redeploying *inside* the VM/home network, but not yet reachable from
+the public internet. **Deliberately deferred** (needs Ali's direct action —
+payment info, browser login — can't be automated): domain registration,
+`cloudflared` install + `cloudflared tunnel login`, creating the tunnel,
+attaching the domain, and verifying public HTTPS.
