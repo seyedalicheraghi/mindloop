@@ -13,13 +13,26 @@ goes down"](#if-your-computer-restarts-or-the-site-goes-down) below.
 
 ## What's already scaffolded
 
-- Hugo content/layout structure (`content/`, `layouts/`, `data/`) for the
-  Hero, About, Projects, Skills, Experience, Writing, and Contact sections.
-- Placeholder content for every section — three illustrative ML/CV/LLM
-  project entries, placeholder experience/skills/writing data — clearly
-  marked `PLACEHOLDER` for you to replace with real content.
-- A minimal hand-written CSS theme (`static/css/main.css`) — no framework,
-  no third-party Hugo theme, automatic dark mode, no client-side JS at all.
+- A deliberately simple **two-page** structure: `/` is a landing page (logo
+  + name + one button), and `/contact/` is everything else — About, Skills,
+  Projects, Experience, Writing, and the actual contact links — all on one
+  page with anchored sections (`#about`, `#skills`, `#projects`,
+  `#experience`, `#writing`, `#get-in-touch`). This was consolidated from an
+  earlier six-page version (one page per section) because it read as too
+  sparse/empty per-page — see `history.md` for that pass.
+- A custom gradient "infinity loop" SVG logo (`layouts/partials/logo.html`),
+  used in the header and on the landing page.
+- Placeholder content for most sections — three illustrative ML/CV/LLM
+  project entries, placeholder experience data — clearly marked
+  `PLACEHOLDER` for you to replace with real content. The Writing section is
+  **not** placeholder — it's pulled from your real Google Scholar profile.
+- A hand-written CSS theme (`assets/css/main.css`, fingerprinted by Hugo's
+  asset pipeline for automatic cache-busting on every deploy) — no
+  framework, no third-party Hugo theme, automatic dark mode, no
+  client-side JS at all. Bold multi-color gradient palette (blue/purple/
+  pink/amber), glassmorphism cards with CSS-only 3D hover tilt, and a
+  full-bleed background wash so the page doesn't look like an empty column
+  on wide monitors.
 - `Dockerfile` (multi-stage: Hugo build → Caddy serve) and `Caddyfile`.
 - Python rebuild automation under `deploy/rebuild/` (see "How it's built"
   below), plus systemd/cron unit files under `deploy/` as **text examples
@@ -57,15 +70,19 @@ run on the VM in production.
 ## Filling in real content
 
 - Replace every `PLACEHOLDER` marker in `content/projects/*.md`,
-  `data/experience.yaml`, `data/writing.yaml`, `content/about/_index.md`,
-  and `content/contact/_index.md`.
+  `data/experience.yaml`, and the bio paragraph in
+  `content/contact/_index.md`. (`data/writing.yaml` is already real —
+  pulled from Google Scholar.)
 - Add a real resume PDF at `static/resume.pdf` (delete
-  `static/resume.pdf.placeholder.txt` once done) — the Experience page's
-  "Download Resume" button already links to `/resume.pdf`.
+  `static/resume.pdf.placeholder.txt` once done) — the "Download Resume"
+  button in the Experience section of `/contact/` already links to
+  `/resume.pdf`.
 - Add real project screenshots/GIFs under `static/images/` and reference
   them from the relevant project's front matter as a future enhancement.
 - Use `hugo new projects/<slug>.md` to scaffold a new project page with
-  pre-filled front matter (see `archetypes/projects.md`).
+  pre-filled front matter (see `archetypes/projects.md`) — it'll
+  automatically show up in the Projects section on `/contact/`, no other
+  file needs editing.
 
 ## Deployment status: done
 
@@ -184,15 +201,18 @@ script — each class has exactly one job:
 ```
 hugo.toml
 archetypes/projects.md
-content/        — Markdown content (Hero, About, Projects, Skills, ...)
-data/           — structured YAML (skills, experience, writing)
-layouts/        — Hugo templates + reusable partials
-static/         — CSS, images, resume.pdf
-Dockerfile      — multi-stage Hugo build → Caddy serve
-Caddyfile       — serves the built static site on :8080
-deploy/rebuild/ — Python rebuild automation (see above)
+content/_index.md       — landing page front matter (hero text)
+content/contact/        — the one real page: bio + everything, see above
+content/projects/*.md   — individual project write-ups (linked from /contact/)
+data/                   — structured YAML (skills, experience, writing)
+assets/css/main.css     — theme (Hugo Pipes-fingerprinted for cache-busting)
+layouts/                — Hugo templates + reusable partials (incl. logo.html)
+static/                 — images, resume.pdf
+Dockerfile              — multi-stage Hugo build → Caddy serve
+Caddyfile               — serves the built static site on :8080
+deploy/rebuild/         — Python rebuild automation (see above)
 deploy/*.service, *.timer, *.cron.example — text examples, not installed
-PLAN.md         — full architecture/security rationale
+PLAN.md                 — full architecture/security rationale
 ```
 
 ## Note on the old `index.html`

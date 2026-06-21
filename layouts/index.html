@@ -1,23 +1,7 @@
 {{ define "main" }}
-{{ partial "hero.html" . }}
-
-{{ with .Site.GetPage "/about" }}
-<section class="about-teaser">
-  <h2>About</h2>
-  {{ .Content }}
-  <a href="{{ .RelPermalink }}">Read more →</a>
-</section>
-{{ end }}
-
-<section class="featured-projects">
-  <h2>Featured Projects</h2>
-  <div class="project-grid">
-    {{ range .Params.featured_projects }}
-      {{ with $.Site.GetPage (printf "/projects/%s" .) }}
-        {{ partial "project-card.html" . }}
-      {{ end }}
-    {{ end }}
-  </div>
-  <a href="{{ "/projects/" | relURL }}">View all projects →</a>
+<section class="landing">
+  <div class="landing__logo">{{ partial "logo.html" (dict "id" "landing") }}</div>
+  {{ partial "hero.html" . }}
+  <a class="button button--lg" href="{{ "/contact/" | relURL }}">View my work &amp; get in touch →</a>
 </section>
 {{ end }}

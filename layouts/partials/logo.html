@@ -1,0 +1,21 @@
+{{ $id := printf "logoGradient-%s" .id }}
+<svg class="logo-mark" viewBox="0 0 40 24" width="36" height="22" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="mindloop logo">
+  <defs>
+    <linearGradient id="{{ $id }}" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563eb"/>
+      <stop offset="40%" stop-color="#9333ea"/>
+      <stop offset="75%" stop-color="#ec4899"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+  </defs>
+  <style>
+    @media (prefers-color-scheme: dark) {
+      #{{ $id }} stop:nth-child(1) { stop-color: #60a5fa; }
+      #{{ $id }} stop:nth-child(2) { stop-color: #c084fc; }
+      #{{ $id }} stop:nth-child(3) { stop-color: #f472b6; }
+      #{{ $id }} stop:nth-child(4) { stop-color: #fbbf24; }
+    }
+  </style>
+  <path d="M28.5 4.5c-4.5 0-7 3.5-8.5 6-1.5-2.5-4-6-8.5-6C7 4.5 3.5 8 3.5 12.5S7 20.5 11.5 20.5c4.5 0 7-3.5 8.5-6 1.5 2.5 4 6 8.5 6 4.5 0 8-3.5 8-8s-3.5-8-8-8z"
+        fill="none" stroke="url(#{{ $id }})" stroke-width="3" stroke-linecap="round"/>
+</svg>

@@ -1,10 +1,67 @@
 {{ define "main" }}
-<h1>{{ .Title }}</h1>
-{{ .Content }}
-<ul class="contact-links">
-  {{ with .Params.email }}<li><a href="mailto:{{ . }}">{{ . }}</a></li>{{ end }}
-  {{ with .Params.linkedin }}<li><a href="{{ . }}">LinkedIn</a></li>{{ end }}
-  {{ with .Params.github }}<li><a href="{{ . }}">GitHub</a></li>{{ end }}
-  {{ with .Params.scholar }}<li><a href="{{ . }}">Google Scholar</a></li>{{ end }}
-</ul>
+<section class="page-intro">
+  <h1>Ali Cheraghi</h1>
+  <p class="page-intro__title">Machine Learning &amp; Computer Vision Engineer</p>
+</section>
+
+<section id="about">
+  <h2>About</h2>
+  {{ .Content }}
+</section>
+
+<section id="skills">
+  <h2>Skills</h2>
+  <div class="skills-grid">
+    {{ range .Site.Data.skills }}
+      {{ partial "skill-group.html" . }}
+    {{ end }}
+  </div>
+</section>
+
+<section id="projects">
+  <h2>Projects</h2>
+  <div class="project-grid">
+    {{ range where .Site.RegularPages "Section" "projects" }}
+      {{ partial "project-card.html" . }}
+    {{ end }}
+  </div>
+</section>
+
+<section id="experience">
+  <h2>Experience</h2>
+  <div class="timeline">
+    {{ range .Site.Data.experience }}
+      {{ partial "timeline-item.html" . }}
+    {{ end }}
+  </div>
+  {{ with .Params.resume_pdf }}
+  <a class="button" href="{{ . }}">Download Resume</a>
+  {{ end }}
+</section>
+
+<section id="writing">
+  <h2>Writing</h2>
+  <ul class="writing-list">
+    {{ range .Site.Data.writing }}
+    <li class="writing-item">
+      <div>
+        <a href="{{ .url }}">{{ .title }}</a>
+        {{ with .authors }}<p class="writing-item__authors">{{ . }}</p>{{ end }}
+      </div>
+      <span class="writing-item__meta">{{ .venue }} · {{ .date }}{{ with .citations }} · {{ . }} citations{{ end }}</span>
+    </li>
+    {{ end }}
+  </ul>
+</section>
+
+<section id="get-in-touch">
+  <h2>Get in touch</h2>
+  <p>{{ .Params.tagline | default "Open to ML/CV/Robotics roles — let's talk." }}</p>
+  <ul class="contact-links">
+    {{ with .Params.email }}<li><a href="mailto:{{ . }}">{{ . }}</a></li>{{ end }}
+    {{ with .Params.linkedin }}<li><a href="{{ . }}">LinkedIn</a></li>{{ end }}
+    {{ with .Params.github }}<li><a href="{{ . }}">GitHub</a></li>{{ end }}
+    {{ with .Params.scholar }}<li><a href="{{ . }}">Google Scholar</a></li>{{ end }}
+  </ul>
+</section>
 {{ end }}

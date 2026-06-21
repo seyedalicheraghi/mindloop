@@ -1,9 +1,12 @@
 <header class="site-header">
   <nav class="site-nav">
-    <a class="site-nav__brand" href="{{ "/" | relURL }}">Ali Cheraghi</a>
+    <a class="site-nav__brand" href="{{ "/" | relURL }}">
+      {{ partial "logo.html" (dict "id" "header") }}
+      <span>Ali Cheraghi</span>
+    </a>
     <ul class="site-nav__links">
       {{ range .Site.Menus.main }}
-      <li><a href="{{ .URL | relURL }}">{{ .Name }}</a></li>
+      <li><a class="button button--sm" href="{{ .URL | relURL }}">{{ .Name }}</a></li>
       {{ end }}
     </ul>
   </nav>
