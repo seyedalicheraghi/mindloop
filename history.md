@@ -282,3 +282,49 @@ Patterns worth remembering for next time, not just what happened once:
   with VM autostart in this entry: a one-line config step with no error
   message if it's missing, only discovered by deliberately asking "what
   actually happens if X" instead of assuming the happy path was covered.
+
+## 2026-06-21 — Real social links, modernized design (CSS-only depth)
+
+- Added real LinkedIn (`linkedin.com/in/sacheraghi`) and Google Scholar
+  links to `content/contact/_index.md`, and fixed the GitHub link from a
+  `PLACEHOLDER` to the real profile. Added a `scholar` field rendered by
+  `layouts/contact/list.html`.
+- Ali asked to "make it more modern with 3D images and everything." Before
+  touching design, clarified scope via two quick questions rather than
+  guessing: (1) whether "3D" meant literal 3D graphics (Three.js/WebGL —
+  would require adding JavaScript and abandoning the site's deliberate
+  zero-JS architecture) or CSS-only depth effects (hover tilts, layered
+  shadows, glassmorphism — no JS needed); Ali chose the latter. (2) whether
+  he had a reference site in mind, or wanted a proposed direction; he chose
+  the latter.
+- Rewrote `static/css/main.css`: gradient-clipped hero name text, two
+  blurred floating "glow blob" pseudo-elements behind the hero (pure CSS
+  `filter: blur()` + `@keyframes`, no images), glassmorphism cards
+  (`backdrop-filter: blur()` + translucent background) with a CSS-only 3D
+  tilt-and-lift on hover (`transform: perspective() rotateX() rotateY()
+  translateY()`), a sticky frosted-glass nav bar, gradient pill-shaped
+  buttons, and a `prefers-reduced-motion` override that disables all of the
+  above for users who've asked for less motion. Zero JavaScript added —
+  architecture unchanged.
+- **Verified in an actual browser before calling it done** (per this
+  project's "always run frontend changes" convention), using the `run`
+  skill: started `hugo server -D` locally, drove headless Chrome
+  (`google-chrome --headless=new`) to screenshot the homepage, a project
+  page, the contact page, and the skills page, in both light and forced-
+  light mode plus a mobile viewport width.
+- **Caught a screenshot-tooling artifact, not a real bug:** the first
+  screenshot showed the gradient hero text almost invisible against the
+  dark background. Root cause wasn't the CSS — `hero-rise` is a 0.7s
+  fade-in-on-page-load animation, and Chrome's `--screenshot` flag
+  captures immediately after load, mid-animation. Re-shot with
+  `--virtual-time-budget=3000` to let it settle, confirmed the gradient
+  text, glow blobs, and cards all render correctly. Lesson: when
+  screenshotting a page with load-triggered CSS animations, always give
+  it time to settle before judging the result — don't mistake "still
+  animating" for "broken."
+- All pages confirmed clean in light mode, dark mode (the default in this
+  headless Chrome environment), and a 390px mobile width — no overflow, no
+  illegible text, nav collapses correctly on mobile.
+- Pushed to `main`; the VM's rebuild timer will pick it up and redeploy
+  within ~5 minutes (no manual VM-side action needed for a content/static
+  asset change).
