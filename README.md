@@ -5,6 +5,12 @@ isolation, served via Docker + Caddy, and exposed to the internet through
 Cloudflare Tunnel (no port-forwarding). Full architecture/security rationale
 is in [`PLAN.md`](./PLAN.md) — read that first if you want the "why."
 
+**Status: live** at https://mindsloop.org and https://www.mindsloop.org.
+Deployment is done — see [`history.md`](./history.md) for exactly what was
+done and how. If you're looking for what to do when your computer restarts
+or the site seems down, jump to ["If your computer restarts, or the site
+goes down"](#if-your-computer-restarts-or-the-site-goes-down) below.
+
 ## What's already scaffolded
 
 - Hugo content/layout structure (`content/`, `layouts/`, `data/`) for the
@@ -19,10 +25,9 @@ is in [`PLAN.md`](./PLAN.md) — read that first if you want the "why."
   below), plus systemd/cron unit files under `deploy/` as **text examples
   only** — nothing has been installed or enabled on this machine.
 
-None of the following were done by this pass (deliberately — see
-`PLAN.md`'s "scaffold-only" scope): no VM was created, no `hugo`/`docker`
-were installed on this host, no domain was registered, no Cloudflare Tunnel
-was configured, no git remote was pushed.
+(The above was scaffolded in an earlier pass before any infrastructure
+existed. All the infrastructure — VM, Docker, domain, Cloudflare Tunnel,
+GitHub — has since been built; see "Deployment status" below.)
 
 ## Local preview — Hugo dev server
 
@@ -62,34 +67,98 @@ run on the VM in production.
 - Use `hugo new projects/<slug>.md` to scaffold a new project page with
   pre-filled front matter (see `archetypes/projects.md`).
 
-## Manual deployment steps (not done by this pass — your responsibility)
+## Deployment status: done
 
-These need sudo/system access, interactive auth, or payment info that
-weren't part of this implementation pass:
+All of the steps that used to be listed here as manual TODOs — VM creation,
+Docker, the GitHub repo, the domain, the Cloudflare Tunnel, the rebuild
+timer, firewall/auto-updates — are complete. The VM (`mindloop-vm`) is
+running on the home PC, the site is live, and it redeploys itself on every
+`git push` to `main` within about 5 minutes.
 
-1. Install KVM/QEMU + `virt-manager`, create a dedicated VM (Debian/Ubuntu
-   Server, 1 vCPU / 1GB RAM is plenty) for isolation from your main OS.
-2. Snapshot the freshly-installed VM as a rollback point.
-3. Inside the VM: install Docker, create a non-root user to run containers
-   and the rebuild script.
-4. Register a domain (Cloudflare Registrar recommended — at-cost, keeps
-   DNS/Tunnel/Registrar in one place) and point its DNS to Cloudflare.
-5. Create a public GitHub repo and push this project to it.
-6. Clone that repo onto the VM at `/opt/mindloop` (or update `REPO_PATH` in
-   `deploy/rebuild/main.py` if you use a different path).
-7. Inside the VM: `docker build` + `docker run` per the commands above,
-   confirm the container serves on `localhost:8080`.
-8. Install and authenticate `cloudflared` inside the VM; create a tunnel
-   pointing at `localhost:8080`.
-9. Attach the domain to the tunnel in the Cloudflare dashboard; verify
-   HTTPS end-to-end.
-10. Install the rebuild automation: copy `deploy/mindloop-rebuild.service`
-    and `.timer` into `/etc/systemd/system/`, then
-    `systemctl enable --now mindloop-rebuild.timer` — or instead install
-    the line from `deploy/mindloop-rebuild.cron.example` via `crontab -e`.
-11. Harden the VM: default-deny firewall, unattended-upgrades, confirm no
-    other inbound services (SSH, etc.) share the tunnel's network path.
-12. Take a new VM snapshot once everything is verified working.
+For exactly what was done, in what order, and the problems hit along the
+way (stale group permissions, sudo quirks, DNS propagation, etc.), see
+[`history.md`](./history.md) — it's the full step-by-step record. The
+sections below cover what you'd actually need day-to-day: making content
+changes, and what happens if the machine restarts or the site goes down.
+
+## If your computer restarts, or the site goes down
+
+Think of it like this: your real computer is a big house. Inside the
+house, there's a smaller pretend-computer living inside it — that's the
+**VM** (`mindloop-vm`). The website actually lives inside that pretend
+computer, kind of like a toy house inside your real house.
+
+**The good news: almost everything wakes itself back up, like a
+wind-up toy.** You don't need to do anything most of the time. Here's the
+order it happens in, all by itself:
+
+1. Your real computer turns on.
+2. A program called `libvirtd` wakes up automatically and says "time to
+   turn on the pretend computer" — so the VM (`mindloop-vm`) turns itself
+   on too, with no one touching anything.
+3. Inside the VM, several little helper programs are all set to "turn on
+   by yourself when the VM starts" — Docker, the secret tunnel to the
+   internet (`cloudflared`), the firewall (`ufw`), the auto-update checker,
+   and the rebuild checker. They all switch on by themselves.
+4. The website itself lives inside a box called a **container**. That box
+   is told "if you ever get turned off, turn yourself back on" — so it
+   does, without anyone asking it to.
+
+So: if your computer restarts (power went out, you rebooted it, anything
+like that), just **wait about 1-2 minutes**, then check the website at
+https://mindsloop.org in a browser. It should just be there.
+
+### If it's NOT back after a few minutes — a simple checklist
+
+Open a terminal on your real computer and go through these in order. Each
+one checks one toy in the chain to see which one didn't wake up.
+
+**1. Is the pretend computer (the VM) awake?**
+```sh
+sg libvirt -c "virsh list --all"
+```
+You want to see `mindloop-vm` with state `running`. If it says
+`shut off` instead, wake it up yourself:
+```sh
+sg libvirt -c "virsh start mindloop-vm"
+```
+
+**2. Is the website's toy box (the container) turned on inside the VM?**
+```sh
+ssh mindloop2026ali@192.168.122.104 "docker ps --filter name=mindloop-portfolio"
+```
+You want to see `mindloop-portfolio` with status `Up ...`. If nothing
+shows up, Docker itself may not have started — check with
+`systemctl is-active docker` (over the same SSH connection), and if it's
+not active: `sudo systemctl start docker` (you may need to type your VM
+password for this one).
+
+**3. Is the secret tunnel to the internet open?**
+```sh
+ssh mindloop2026ali@192.168.122.104 "systemctl is-active cloudflared"
+```
+You want to see `active`. If not: `sudo systemctl start cloudflared`.
+
+**4. Still stuck?** There's a rollback button — three saved "snapshots" of
+the VM from when everything was known to be working
+(`pristine-install`, `working-baseline`, `public-live`). Worst case, you
+can rewind the whole VM back to the last good one:
+```sh
+sg libvirt -c "virsh snapshot-revert mindloop-vm public-live"
+```
+
+### Why this works (the slightly more technical version)
+
+- The VM has its **autostart flag turned on** (`virsh autostart
+  mindloop-vm`), which is what makes step 2 above happen automatically.
+  This was actually missing at first and got fixed on 2026-06-21 — see
+  `history.md` for that story.
+- Inside the VM, `docker`, `cloudflared`, `mindloop-rebuild.timer`, `ufw`,
+  and `unattended-upgrades` are all `systemctl enable`d, which is what
+  makes a service start by itself every time the VM boots.
+- The website's container was started with `--restart unless-stopped`,
+  which is Docker's own way of saying "bring this back automatically,
+  no matter what, unless someone deliberately stopped it."
 
 ## How it's built — rebuild automation
 

@@ -180,3 +180,105 @@ content — replacing the `PLACEHOLDER` markers in `content/projects/*.md`,
 `data/experience.yaml`, `data/writing.yaml`, `content/about/_index.md`,
 `content/contact/_index.md`, and adding a real `static/resume.pdf` — not
 infrastructure.
+
+## 2026-06-21 — Found and fixed a reboot gap: the VM itself didn't autostart
+
+While documenting the recovery process for the README, checked what
+actually happens if the home PC reboots — found that the libvirt `default`
+network was set to autostart (`yes`), and `libvirtd` itself starts on host
+boot (`systemctl is-enabled libvirtd` -> `enabled`), but **`mindloop-vm`
+itself was not** (`virsh dominfo mindloop-vm` showed `Autostart: disable`).
+Without this, a host reboot would bring the network up but leave the VM
+powered off indefinitely until someone manually ran `virsh start
+mindloop-vm` — the site would silently stay down with no automatic
+recovery at all.
+
+- Fixed: `virsh autostart mindloop-vm` -> now `Autostart: enable`.
+- Verified the *inside-the-VM* half of recovery by rebooting the VM itself
+  (`virsh reboot mindloop-vm` — safe, only restarts the guest, not the host
+  PC): confirmed `docker`, `cloudflared`, `mindloop-rebuild.timer`, `ufw`,
+  and `unattended-upgrades` all came back `active` on their own, and the
+  `mindloop-portfolio` container restarted automatically (`--restart
+  unless-stopped` on `docker run` is what does this — no systemd unit
+  manages the container itself, the restart policy is stored in Docker's
+  own container config). Confirmed `https://mindsloop.org` was reachable
+  again within seconds.
+- **Not verified by an actual test** (deliberately — rebooting the whole
+  host PC would interrupt Ali's other work, e.g. ML training): a *full
+  host reboot*, where `mindloop-vm`'s new autostart flag is what brings the
+  guest up in the first place. The fix is applied and the config is
+  confirmed correct, but the very first real host reboot is the first time
+  this exact path gets exercised end-to-end. Worth a quick sanity check
+  next time the host reboots for any reason (`virsh list --all` should
+  show `mindloop-vm` as `running` shortly after the host comes up, with no
+  manual `virsh start` needed).
+
+## Challenges & lessons learned (cumulative, across this whole project)
+
+Patterns worth remembering for next time, not just what happened once:
+
+- **Stale login-session group membership bit twice.** Adding a user to a
+  group (`libvirt`, `docker`) doesn't take effect in any shell/session that
+  was already open — `id`/`groups` in an old session won't show it even
+  though `/etc/group` is already correct. `sg <group> -c "command"` is the
+  reliable one-off workaround; a full logout/login (or new SSH session for
+  remote work) is the permanent fix. Symptom to recognize: a permission
+  error right after you were "definitely already added to that group."
+- **qemu/Docker run as their own restricted users, not as you.** Two
+  separate permission surprises came from this: `libvirt-qemu` couldn't
+  traverse `/home/ali` (mode `750`) to read an ISO in `~/Downloads` even
+  though the file itself was readable — fixed with a scoped POSIX ACL
+  (`setfacl -m u:libvirt-qemu:--x /home/ali`) rather than loosening the
+  whole directory. And `sudo <cmd>` run as root looks for config files in
+  *root's* home directory, not the invoking user's — `cloudflared service
+  install` failed until the tunnel config was copied to `/etc/cloudflared/`
+  explicitly.
+- **`sudo -n true` is not a valid "is passwordless sudo working" test.**
+  It only tells you whether the specific command `true` is passwordless —
+  if your NOPASSWD rule is scoped to specific binaries (as this project's
+  is, deliberately, rather than blanket `ALL`), you have to test with one
+  of *those* binaries (e.g. `sudo -n /usr/bin/apt-get --version`). Wasted a
+  round-trip on this exact mistake mid-project.
+- **Scoped sudoers rules need the *real* binary path, not the conventional
+  one.** `/usr/bin/usermod` looked right but was wrong on this system — the
+  real binary was `/usr/sbin/usermod`. Same class of issue would apply to
+  any future scoped sudoers addition: always confirm with `which <cmd>`
+  before adding it to the allowlist, don't assume `/usr/bin/`.
+  `cloudflared` itself was never added to the allowlist at all (a one-off
+  command didn't justify widening the policy), so that single command was
+  always going to need a manually-typed password — expected, not a bug.
+- **A brand-new Ubuntu release's codename can 404 on third-party apt
+  repos.** Ubuntu 26.04 ("resolute") was new enough that this was a real
+  risk for both Docker's and Cloudflare's repos. Docker's repo happened to
+  already support `resolute` by the time this was done; Cloudflare's did
+  not, and needed an explicit fallback to `noble`. Always have the
+  fallback ready rather than assuming either way.
+- **A Cloudflare "tunnel login" can hang forever for a reason that looks
+  like nothing is happening.** The first `cloudflared tunnel login` attempt
+  just sat at "Waiting for login..." indefinitely — not because anything
+  was broken, but because the domain hadn't been added to Cloudflare yet,
+  so there was no zone to authorize against. If this hangs, check the
+  domain/zone state before assuming the login flow itself is broken.
+- **"Add a site" in Cloudflare's current UI is split into three buttons**
+  ("Connect a domain" / "Transfer a domain" / "Buy a domain") where older
+  guides just say "Add a Site." For a domain already owned elsewhere and
+  not being moved, the answer is always "Connect a domain" — "Transfer"
+  is a different, slower, registrar-changing operation (and is usually
+  blocked for ~60 days on a freshly-purchased domain anyway).
+- **DNS propagation delay is real but easy to mistake for a config error.**
+  GoDaddy's nameserver change took roughly 30-45 minutes to become
+  authoritative. A `dig` from a local/cached resolver can lag well behind
+  reality — checking directly against `1.1.1.1`/`8.8.8.8`, or with `dig
+  +trace` against the TLD's own authoritative servers, is the way to tell
+  "actually not propagated yet" apart from "propagated, but something
+  local is just caching the old answer." The latter happened twice in this
+  project (once for the nameserver switch, once for the `www` CNAME) and
+  both times the fix was just querying a different resolver, not waiting
+  longer.
+- **A skipped "do this immediately after X" step doesn't announce itself.**
+  The plan called for a VM snapshot immediately after fresh install, before
+  installing anything else — it got skipped in the moment and only caught
+  later because a checklist existed to catch it. Same pattern repeated
+  with VM autostart in this entry: a one-line config step with no error
+  message if it's missing, only discovered by deliberately asking "what
+  actually happens if X" instead of assuming the happy path was covered.
