@@ -5,5 +5,6 @@
   {{ with .Params.email }}<li><a href="mailto:{{ . }}">{{ . }}</a></li>{{ end }}
   {{ with .Params.linkedin }}<li><a href="{{ . }}">LinkedIn</a></li>{{ end }}
   {{ with .Params.github }}<li><a href="{{ . }}">GitHub</a></li>{{ end }}
+  {{ with .Params.scholar }}<li><a href="{{ . }}">Google Scholar</a></li>{{ end }}
 </ul>
 {{ end }}
