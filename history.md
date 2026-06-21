@@ -490,3 +490,72 @@ Contact page.
 **Still open**: real bio, real Experience entries, real/expanded Projects,
 resume PDF, and photos — same gaps as the previous entry, now living on a
 single consolidated page instead of being spread across five.
+
+## 2026-06-21 — Unrelated side project: Postgres DB for the HIMYM dataset
+
+Ali asked (separately from the portfolio site) whether the same home-PC/VM
+infrastructure could be reused to query a SQL database from his iPhone.
+Answered conceptually first (API-in-front-of-Postgres via the existing
+Cloudflare Tunnel vs. direct TCP access via Cloudflare WARP/Zero Trust —
+recommended the API approach for security). He then asked to actually
+build a Postgres database from `dataset/` — English-learning notes built
+around *How I Met Your Mother* episodes (topic questions, vocab, cultural
+explanations, comprehension/discussion questions, organized by episode and
+by time-segment "Parts"), structured per `dataset/TEMPLATE.txt`.
+
+**This is unrelated to the portfolio site** — it just happens to live in
+the same project folder and reuses the same VM/Docker infra. Added
+`/dataset/` and `/database/` to `.gitignore` so none of this (personal
+data, schema, credentials) ever reaches the public portfolio repo.
+
+- Designed a normalized schema (`database/schema.sql`): `episodes`,
+  `episode_parts` (the Part 1-4 time ranges), `topic_questions`,
+  `vocab_entries`, `cultural_explanations`, `comprehension_questions`,
+  `discussion_questions` — all FK'd to `episodes`, each Vocab/Cultural/
+  Comprehension row tagged with its `part_number`.
+- Wrote `database/parse_dataset.py` to parse the two real data files
+  (`S01E01.txt`, `S01E02.txt`) into SQL inserts. Skipped `TEMPLATE.txt`
+  (empty template) and `HIMYM S1D1E1.txt` (an older, differently-structured
+  vocab-only draft for the same episode as S01E01 — left unparsed rather
+  than guessing how to reconcile two schemas for one episode).
+- **Found and fixed two real parsing bugs by validating output against the
+  source line-by-line rather than trusting the first pass**:
+  1. Term/definition splitting only handled `" : "` (spaces both sides).
+     One real entry used `"term: definition"` (no leading space) — fixed
+     by switching to a single first-colon regex split that tolerates
+     inconsistent spacing.
+  2. An entry ending in a bare trailing colon with an empty definition
+     (`"This just in :"`) broke entry-boundary detection for the *next*
+     entry, which got silently swallowed into the previous one's body.
+     Root cause: the timestamp-marker check was only attempted right after
+     a flush, not on every line. Fixed by checking for a new entry-marker
+     on every line, before falling back to "is this a body continuation"
+     — markers now always take priority regardless of the previous
+     entry's state.
+  - Validated by printing every extracted record next to a manual line
+    count from the source for both files; final counts (46 vocab, 21
+    cultural, 19 comprehension, 7 topic, 8 parts, 6 discussion) matched
+    hand-verification exactly. Also confirmed legitimately blank
+    placeholder Q&As in the source (S01E02 Part 4) were preserved as
+    empty rather than fabricated.
+- The source files have CRLF line endings and some invalid/mojibake UTF-8
+  bytes (smart-quote remnants) — decoded with `errors="replace"` rather
+  than crashing; one vocab term (`"the signal"`) retains a couple of
+  replacement characters as a result, harmless for querying.
+- Deployed Postgres 16 (`postgres:16-alpine`) in Docker on `mindloop-vm`
+  (container `himym-db`, named volume `himym-pgdata` for persistence,
+  `--restart unless-stopped`), loaded `schema.sql` then `seed_data.sql` via
+  `psql`. Verified row counts and a sample query end-to-end.
+- **Deliberately bound the container to `127.0.0.1:5432` inside the VM only**
+  — not reachable from the host or the internet yet. Nothing about
+  external access (API layer, Cloudflare Tunnel route, WARP) has been
+  built — that's the next step if Ali wants to actually query this from
+  his iPhone, per the earlier conversation. Connection details and the
+  generated Postgres password are in `database/credentials.txt`
+  (gitignored, not in any repo).
+
+**State at end of this entry**: a real, queryable Postgres database exists
+on the VM with accurate data from 2 episodes, fully internal/private.
+Adding more episodes later is just dropping a new `SxxExx.txt` file in
+`dataset/` and re-running the parser + reload. External access is a
+separate, not-yet-done step.
