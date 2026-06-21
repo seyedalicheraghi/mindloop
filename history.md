@@ -371,3 +371,52 @@ even though the deploy itself succeeded. Fingerprinted/hashed filenames
 are the standard fix — they make "did the deploy actually take effect"
 trivially checkable (new hash in the HTML = new content shipped) instead
 of needing to manually inspect cache headers.
+
+## 2026-06-21 — Bolder colors + real publications (Ali: "boring, no color, not enough info")
+
+Ali said the site looked boring with no color and not enough information.
+Split into two distinct problems via clarifying questions rather than
+guessing which one to fix:
+
+1. **Color**: wanted a bolder, more vibrant palette (confirmed, not "add
+   real photos" — that's separate, still open).
+2. **Information**: confirmed it meant replacing `PLACEHOLDER` text with
+   real content, not "add more sections."
+
+**Color fix**: added two more accent hues (pink `--color-accent-3`, amber
+`--color-accent-4`) on top of the existing blue/purple, so the hero
+gradient text and glow blobs now span 4 colors instead of 2. Added a
+gradient top accent bar on every card that rotates through the palette by
+position (`nth-child`), gradient-underlined `h2` headings, and color-coded
+pills (rotating text/border color by position via `nth-child(3n+...)`).
+Still zero JavaScript — all via CSS custom properties, gradients, and
+`color-mix()`.
+
+**Information fix — Writing section only, fully real now**: fetched
+Ali's actual Google Scholar profile
+(`scholar.google.com/citations?user=0ibpiooAAAAJ`) and replaced the two
+`PLACEHOLDER` entries in `data/writing.yaml` with 11 real publications
+(titles, co-authors, venues, years, citation counts — GuideBeacon, 204
+citations, down to GuideCall, 3). Linked each via a Google-Scholar
+search-by-title URL rather than guessing a direct publisher link, except
+the patent (linked directly to Google Patents). Updated
+`layouts/writing/list.html` to render authors and citation counts too —
+real, verifiable substance instead of placeholder text.
+
+**Tried but did not use**: fetched Ali's LinkedIn profile
+(`linkedin.com/in/sacheraghi`) for work-history details to fill the
+Experience section the same way. Got a partial, fuzzy result (PhD at
+Wichita State 2015-2019, Caterpillar Inc. as an employer, NSF I-Corps 2018,
+1 patent — all consistent with the Scholar data) but **specific job
+titles and dates were not reliably extracted** (LinkedIn scrapes are
+known to be incomplete/truncated). Deliberately did not write this into
+the site — wrong dates/titles on a job-search portfolio would be worse
+than a placeholder. Asked Ali to confirm/provide the real details instead
+of publishing a guess.
+
+**Still open** (needs Ali, not something to guess at): About page bio
+paragraph, Experience timeline (real employer/title/dates), real project
+write-ups for the 3 Projects entries (or swapping in real projects from
+his actual research — GuideBeacon/CityGuide/etc. are strong, verified
+candidates), a real resume PDF, and "add real photos" from the color
+question above (no images on the site at all currently).
