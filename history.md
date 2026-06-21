@@ -128,3 +128,55 @@ the public internet. **Deliberately deferred** (needs Ali's direct action —
 payment info, browser login — can't be automated): domain registration,
 `cloudflared` install + `cloudflared tunnel login`, creating the tunnel,
 attaching the domain, and verifying public HTTPS.
+
+## 2026-06-21 — Domain + Cloudflare Tunnel: site is publicly live
+
+- Ali registered **`mindsloop.org`** — on **GoDaddy**, not Cloudflare
+  Registrar (his earlier "I registered in Cloudflare" referred to creating
+  a Cloudflare account, not the domain purchase itself — clarified mid-session).
+- Added the domain to Cloudflare via **"Connect a domain"** (not "Transfer"
+  — GoDaddy domains are transfer-locked for ~60 days post-purchase anyway,
+  and a transfer was never necessary; Cloudflare just needs to be
+  authoritative DNS). Skipped importing DNS records (scan found 0 — fresh
+  domain, no email/site previously configured). Confirmed DNSSEC was
+  already off in GoDaddy.
+- Updated GoDaddy nameservers from `ns27/ns28.domaincontrol.com` to
+  Cloudflare's assigned `jeff.ns.cloudflare.com` / `leanna.ns.cloudflare.com`.
+  Propagation took roughly 30-45 minutes; verified fully authoritative via
+  `dig +trace` hitting the `.org` TLD servers directly.
+- Ran `cloudflared tunnel login` (had to redo it once — the first attempt,
+  before the domain was connected to Cloudflare, had no zone to authorize
+  against and just hung on "Waiting for login..." indefinitely; killed and
+  re-ran after the domain went active). Auth completed, `cert.pem` saved.
+- Created tunnel `mindloop-portfolio` (id `00f3fb15-b170-4910-95ed-b5088b2a162f`).
+  Config (`~/.cloudflared/config.yml`, later copied to `/etc/cloudflared/`)
+  routes both `mindsloop.org` and `www.mindsloop.org` to
+  `http://localhost:8080`, default `http_status:404` for anything else.
+  Routed DNS for both hostnames (`cloudflared tunnel route dns`).
+  Test-ran the tunnel in the foreground first — connectivity pre-checks
+  all passed (quic, both regions, Cloudflare API) — and confirmed
+  `https://mindsloop.org` and `https://www.mindsloop.org` both returned
+  `200 OK` before making it permanent.
+- Installed as a systemd service (`sudo cloudflared service install`) —
+  needed the tunnel credentials JSON + `config.yml` copied into
+  `/etc/cloudflared/` first, since running under `sudo` looks in *root's*
+  home directory for the default config, not the invoking user's.
+  `cloudflared` itself wasn't in the scoped sudoers allowlist (same
+  one-off-password pattern as the earlier `usermod` snag), so this one
+  command was run manually by Ali rather than extending the sudoers file
+  for a single use.
+- Final verification: both hostnames serve `200 OK` over HTTPS through
+  Cloudflare; `docker`, `cloudflared`, `mindloop-rebuild.timer`, `ufw`, and
+  `unattended-upgrades` are all `systemctl enabled` (persist across
+  reboots). Took a third snapshot, `public-live`.
+
+**State at end of this entry:** the portfolio site is fully live at
+**https://mindsloop.org** and **https://www.mindsloop.org**, self-hosted on
+the home PC, auto-redeploying on `git push` (within ~5 min via the rebuild
+timer), firewalled, auto-patching, and with three VM rollback snapshots
+(`pristine-install`, `working-baseline`, `public-live`). Everything in
+`PLAN.md`'s original action list is now done. Remaining future work is
+content — replacing the `PLACEHOLDER` markers in `content/projects/*.md`,
+`data/experience.yaml`, `data/writing.yaml`, `content/about/_index.md`,
+`content/contact/_index.md`, and adding a real `static/resume.pdf` — not
+infrastructure.
