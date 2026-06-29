@@ -1,0 +1,15 @@
+{{ define "main" }}
+<section class="page-intro">
+  <h1>Articles</h1>
+  <p class="page-intro__subtitle">Technical writing on ML, computer vision, and autonomy.</p>
+</section>
+<section class="articles-list">
+  {{ range .Pages.ByDate.Reverse }}
+  <a class="article-card" href="{{ .RelPermalink }}">
+    <span class="article-card__date">{{ .Date.Format "January 2006" }}</span>
+    <h2 class="article-card__title">{{ .Title }}</h2>
+    {{ with .Params.summary }}<p class="article-card__summary">{{ . }}</p>{{ end }}
+  </a>
+  {{ end }}
+</section>
+{{ end }}

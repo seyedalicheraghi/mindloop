@@ -1,0 +1,14 @@
+{{ define "main" }}
+<article class="article-prose">
+  <header class="article-header">
+    <a class="article-header__back" href="{{ "/articles/" | relURL }}">← Articles</a>
+    <h1 class="article-header__title">{{ .Title }}</h1>
+    <time class="article-header__date" datetime="{{ .Date.Format "2006-01-02" }}">
+      {{ .Date.Format "January 2, 2006" }}
+    </time>
+  </header>
+  <div class="article-body">
+    {{ .Content }}
+  </div>
+</article>
+{{ end }}

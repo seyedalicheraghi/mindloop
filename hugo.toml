@@ -6,6 +6,11 @@ title = "Ali Cheraghi — ML & Computer Vision Engineer"
   description = "Ali Cheraghi — Machine Learning & Computer Vision Engineer with 6+ years of experience, expanding into LLMs, VLMs, VLAs, and ROS2."
 
 [[menu.main]]
+  name = "Articles"
+  url = "/articles/"
+  weight = 5
+
+[[menu.main]]
   name = "Contact"
   url = "/contact/"
   weight = 10
